@@ -1,0 +1,325 @@
+---
+title: "Monte Carlo Simulation"
+author: "Yves Beutler"
+date: "12 Juni 2018"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+This document shows the Monte Carlo simulation for the stock values of famous international companies.
+
+## Prerequisites
+To run this simulation you need to install `quantmod` with the following command: `install.packages("quantmod")`. You also need to install `fOptions` for the theoretical black-scholes pricing.
+
+```{R message=FALSE, warning=FALSE, include=FALSE}
+library(quantmod)
+library(fOptions)
+```
+
+### Importing stock data
+
+We fetch the stock data from the following international companies:
+
+* ABB (electronics)
+* UBS (finances)
+* Novartis (pharmaceutical)
+
+```{R echo=FALSE}
+companies = c('ABB','UBS', 'NVS')
+```
+
+I use the quantmod library to fetch the data from the year 2017:
+```{R message=FALSE, warning=FALSE}
+getSymbols(companies, src="yahoo", from="2017-01-01", to="2017-12-31")
+```
+
+### ABB
+
+These are the ABB stock values of the last year (2017):
+```{R message=FALSE, warning=FALSE}
+chartSeries(ABB)
+```
+
+#### Geometric Brownian Motion (GBM)
+
+The geometric Brownian Motion is a continuous-time stochastic process in which the logarithm of the randomly varying quantity follows a Brownian motion or Wiener process.
+We can see the borders (red) and the mean (yellow). The mean is the average of all the 1000 possible forcasts.
+
+```{R echo=FALSE}
+
+dRets = dailyReturn(ABB)
+mu = mean(dRets)
+sigma = sd(dRets)
+
+nTimes = 1000
+nDays = 252
+
+S0 = Cl(ABB)[1] # closing price on Jan 3, 2017
+S = matrix(0,nrow=nDays,ncol=nTimes)
+for(ix in 1:nTimes){
+  SVec = rep(0,nDays)
+  SVec[1] = S0
+  for(jx in 2:nDays){
+          DeltaS = mu*SVec[jx-1] + sigma*SVec[jx-1]*rnorm(1)
+          SVec[jx] = SVec[jx-1]+DeltaS
+  }
+   S[,ix] = SVec
+}
+
+mean = mu * nDays
+sigmaPeak = sigma * sqrt(nDays)
+t = seq(from=0,to=1,length.out=nDays)
+meanBnd = vector(length = nDays)
+upBnd = vector(length = nDays)
+loBnd = vector(length = nDays)
+test = vector(length = nDays)
+for(i in 0:nDays) {
+  meanBnd[i] = S0*exp(((mean-sigmaPeak^2/2))*t[i])
+  upBnd[i] = S0*exp(((mean-sigmaPeak^2/2))*t[i] + (sigmaPeak * 2.5 * sqrt(t[i])))
+  loBnd[i] = S0*exp(((mean-sigmaPeak^2/2))*t[i] + (sigmaPeak * -2.5 * sqrt(t[i])))
+}
+
+matplot(S,type='l',col=rgb(0,0,1,0.3),lty=1,ylab='',main='Simulated Price of ABB')
+  matlines(loBnd,lwd=3,col="red")
+  matlines(upBnd,lwd=3,col="red")
+  matlines(meanBnd,lwd=3,col="yellow")
+
+```
+
+#### Simulation Distribution
+
+We want to check that our values match with the lognormal distribution for the according companies.
+
+```{R echo=FALSE, message=FALSE, warning=FALSE}
+lnMean = S0*exp(mu*nDays)
+lnSD = S0*exp(mu*nDays)*sqrt(exp((sigma^2)*nDays)-1)
+
+meanOfLog = log(S0) + (mu-(sigma^2)/2)*nDays
+sdOfLog = sigma*sqrt(nDays)
+priceGrid = seq(0,lnMean+6*lnSD,length=10000)
+theoreticalDens = dlnorm(priceGrid,meanOfLog,sdOfLog)
+empiricalDens = density(S[nDays,])
+plot(priceGrid,theoreticalDens,type='l',xlab='Prices',ylab='Density',main='lognormal distribution of ABB')
+lines(empiricalDens,col='blue')
+
+```
+
+#### Black-Scholes Option Prices
+
+I used the following values:
+
+* Stock price: 21.14$
+* Interest: 5%
+* Time: 3 Months
+* Strike: 23$ (call), 19$ (put)
+
+```{R}
+stock = as.numeric(Op(ABB)[1])
+interest = 0.05
+strike = 23
+bsCall = GBSOption("c", stock, strike, 1/4, interest, interest, sigmaPeak)
+cat("estimated Call Price: ",bsCall@price)
+
+strike = 19
+bsPut = GBSOption("p", stock, strike, 1/4, interest, interest, sigmaPeak)
+cat("estimated Put Price: ",bsPut@price)
+```
+
+
+
+### UBS
+
+These are the UBS stock values of the last year (2017):
+```{R message=FALSE, warning=FALSE}
+chartSeries(UBS)
+```
+
+
+
+#### Geometric Brownian Motion (GBM)
+
+The geometric Brownian Motion is a continuous-time stochastic process in which the logarithm of the randomly varying quantity follows a Brownian motion or Wiener process.
+We can see the borders (red) and the mean (yellow). The mean is the average of all the 1000 possible forcasts.
+
+```{R echo=FALSE}
+
+dRets = dailyReturn(UBS)
+mu = mean(dRets)
+sigma = sd(dRets)
+
+nTimes = 1000
+nDays = 252
+
+S0 = Cl(UBS)[1] # closing price on Jan 3, 2017
+S = matrix(0,nrow=nDays,ncol=nTimes)
+for(ix in 1:nTimes){
+  SVec = rep(0,nDays)
+  SVec[1] = S0
+  for(jx in 2:nDays){
+          DeltaS = mu*SVec[jx-1] + sigma*SVec[jx-1]*rnorm(1)
+          SVec[jx] = SVec[jx-1]+DeltaS
+  }
+   S[,ix] = SVec
+}
+
+mean = mu * nDays
+sigmaPeak = sigma * sqrt(nDays)
+t = seq(from=0,to=1,length.out=nDays)
+meanBnd = vector(length = nDays)
+upBnd = vector(length = nDays)
+loBnd = vector(length = nDays)
+test = vector(length = nDays)
+for(i in 0:nDays) {
+  meanBnd[i] = S0*exp(((mean-sigmaPeak^2/2))*t[i])
+  upBnd[i] = S0*exp(((mean-sigmaPeak^2/2))*t[i] + (sigmaPeak * 2.5 * sqrt(t[i])))
+  loBnd[i] = S0*exp(((mean-sigmaPeak^2/2))*t[i] + (sigmaPeak * -2.5 * sqrt(t[i])))
+}
+
+matplot(S,type='l',col=rgb(0,0,1,0.3),lty=1,ylab='',main='Simulated Price of UBS')
+  matlines(loBnd,lwd=3,col="red")
+  matlines(upBnd,lwd=3,col="red")
+  matlines(meanBnd,lwd=3,col="yellow")
+
+```
+
+#### Simulation Distribution
+
+We want to check that our values match with the lognormal distribution for the according companies.
+
+```{R echo=FALSE, message=FALSE, warning=FALSE}
+lnMean = S0*exp(mu*nDays)
+lnSD = S0*exp(mu*nDays)*sqrt(exp((sigma^2)*nDays)-1)
+
+meanOfLog = log(S0) + (mu-(sigma^2)/2)*nDays
+sdOfLog = sigma*sqrt(nDays)
+priceGrid = seq(0,lnMean+6*lnSD,length=10000)
+theoreticalDens = dlnorm(priceGrid,meanOfLog,sdOfLog)
+empiricalDens = density(S[nDays,])
+plot(priceGrid,theoreticalDens,type='l',xlab='Prices',ylab='Density',main='lognormal distribution of UBS')
+lines(empiricalDens,col='blue')
+
+```
+
+#### Black-Scholes Option Prices
+
+I used the following values:
+
+* Stock price: 16.22$
+* Interest: 5%
+* Time: 3 Months
+* Strike: 18$ (call), 15$ (put)
+
+```{R}
+stock = as.numeric(Op(UBS)[1])
+interest = 0.05
+strike = 18
+bsCall = GBSOption("c", stock, strike, 1/4, interest, interest, sigmaPeak)
+cat("estimated Call Price: ",bsCall@price)
+
+strike = 15
+bsPut = GBSOption("p", stock, strike, 1/4, interest, interest, sigmaPeak)
+cat("estimated Put Price: ",bsPut@price)
+```
+
+
+
+### Novartis
+
+These are the Novartis stock values of the last year (2017):
+```{R message=FALSE, warning=FALSE}
+chartSeries(NVS)
+```
+
+
+
+#### Geometric Brownian Motion (GBM)
+
+The geometric Brownian Motion is a continuous-time stochastic process in which the logarithm of the randomly varying quantity follows a Brownian motion or Wiener process.
+We can see the borders (red) and the mean (yellow). The mean is the average of all the 1000 possible forcasts.
+
+```{R echo=FALSE}
+
+dRets = dailyReturn(NVS)
+mu = mean(dRets)
+sigma = sd(dRets)
+
+nTimes = 1000
+nDays = 252
+
+S0 = Cl(NVS)[1] # closing price on Jan 3, 2017
+S = matrix(0,nrow=nDays,ncol=nTimes)
+for(ix in 1:nTimes){
+  SVec = rep(0,nDays)
+  SVec[1] = S0
+  for(jx in 2:nDays){
+          DeltaS = mu*SVec[jx-1] + sigma*SVec[jx-1]*rnorm(1)
+          SVec[jx] = SVec[jx-1]+DeltaS
+  }
+   S[,ix] = SVec
+}
+
+mean = mu * nDays
+sigmaPeak = sigma * sqrt(nDays)
+t = seq(from=0,to=1,length.out=nDays)
+meanBnd = vector(length = nDays)
+upBnd = vector(length = nDays)
+loBnd = vector(length = nDays)
+test = vector(length = nDays)
+for(i in 0:nDays) {
+  meanBnd[i] = S0*exp(((mean-sigmaPeak^2/2))*t[i])
+  upBnd[i] = S0*exp(((mean-sigmaPeak^2/2))*t[i] + (sigmaPeak * 2.5 * sqrt(t[i])))
+  loBnd[i] = S0*exp(((mean-sigmaPeak^2/2))*t[i] + (sigmaPeak * -2.5 * sqrt(t[i])))
+}
+
+matplot(S,type='l',col=rgb(0,0,1,0.3),lty=1,ylab='',main='Simulated Price of Novartis')
+  matlines(loBnd,lwd=3,col="red")
+  matlines(upBnd,lwd=3,col="red")
+  matlines(meanBnd,lwd=3,col="yellow")
+
+```
+
+#### Simulation Distribution
+
+We want to check that our values match with the lognormal distribution for the according companies.
+
+```{R echo=FALSE, message=FALSE, warning=FALSE}
+lnMean = S0*exp(mu*nDays)
+lnSD = S0*exp(mu*nDays)*sqrt(exp((sigma^2)*nDays)-1)
+
+meanOfLog = log(S0) + (mu-(sigma^2)/2)*nDays
+sdOfLog = sigma*sqrt(nDays)
+priceGrid = seq(0,lnMean+6*lnSD,length=10000)
+theoreticalDens = dlnorm(priceGrid,meanOfLog,sdOfLog)
+empiricalDens = density(S[nDays,])
+plot(priceGrid,theoreticalDens,type='l',xlab='Prices',ylab='Density',main='lognormal distribution of Novartis')
+lines(empiricalDens,col='blue')
+
+```
+
+#### Black-Scholes Option Prices
+
+I used the following values:
+
+* Stock price: 72.89$
+* Interest: 5%
+* Time: 3 Months
+* Strike: 80$ (call), 65$ (put)
+
+```{R}
+stock = as.numeric(Op(NVS)[1])
+interest = 0.05
+strike = 80
+bsCall = GBSOption("c", stock, strike, 1/4, interest, interest, sigmaPeak)
+cat("estimated Call Price: ",bsCall@price)
+
+strike = 65
+bsPut = GBSOption("p", stock, strike, 1/4, interest, interest, sigmaPeak)
+cat("estimated Put Price: ",bsPut@price)
+```

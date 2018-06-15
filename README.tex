@@ -1,0 +1,385 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={Monte Carlo Simulation},
+            pdfauthor={Yves Beutler},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{Monte Carlo Simulation}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{Yves Beutler}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{02 Juni 2018}
+
+
+\begin{document}
+\maketitle
+
+\subsection{Introduction}\label{introduction}
+
+This document shows the Monte Carlo simulation for the stock values of
+famous international companies.
+
+\subsection{Prerequisites}\label{prerequisites}
+
+To run this simulation you need to install \texttt{quantmod} with the
+following command: \texttt{install.packages("quantmod")}. You also need
+to install \texttt{fOptions} for the theoretical black-scholes pricing.
+
+\subsubsection{Importing stock data}\label{importing-stock-data}
+
+We fetch the stock data from the following international companies:
+
+\begin{itemize}
+\tightlist
+\item
+  ABB (electronics)
+\item
+  UBS (finances)
+\item
+  Novartis (pharmaceutical)
+\end{itemize}
+
+I use the quantmod library to fetch the data from the year 2017:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{getSymbols}\NormalTok{(companies, }\DataTypeTok{src=}\StringTok{"yahoo"}\NormalTok{, }\DataTypeTok{from=}\StringTok{"2017-01-01"}\NormalTok{, }\DataTypeTok{to=}\StringTok{"2017-12-31"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "ABB" "UBS" "NVS"
+\end{verbatim}
+
+\subsubsection{ABB}\label{abb}
+
+These are the ABB stock values of the last year (2017):
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{chartSeries}\NormalTok{(ABB)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{README_files/figure-latex/unnamed-chunk-4-1.pdf}
+
+\paragraph{Geometric Brownian Motion
+(GBM)}\label{geometric-brownian-motion-gbm}
+
+The geometric Brownian Motion is a continuous-time stochastic process in
+which the logarithm of the randomly varying quantity follows a Brownian
+motion or Wiener process. We can see the borders (blue) and the mean
+(yellow). The mean is the average of all the 1000 possible forcasts.
+
+\includegraphics{README_files/figure-latex/unnamed-chunk-5-1.pdf}
+
+\paragraph{Simulation Distribution}\label{simulation-distribution}
+
+We want to check that our values match with the lognormal distribution
+for the according companies.
+
+\includegraphics{README_files/figure-latex/unnamed-chunk-6-1.pdf}
+
+\paragraph{Black-Scholes Option
+Prices}\label{black-scholes-option-prices}
+
+I used the following values:
+
+\begin{itemize}
+\tightlist
+\item
+  Stock price: 21.14\$
+\item
+  Interest: 5\%
+\item
+  Time: 3 Months
+\item
+  Strike: 23\$ (call), 19\$ (put)
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{stock =}\StringTok{ }\KeywordTok{as.numeric}\NormalTok{(}\KeywordTok{Op}\NormalTok{(ABB)[}\DecValTok{1}\NormalTok{])}
+\NormalTok{interest =}\StringTok{ }\FloatTok{0.05}
+\NormalTok{strike =}\StringTok{ }\DecValTok{23}
+\NormalTok{bsCall =}\StringTok{ }\KeywordTok{GBSOption}\NormalTok{(}\StringTok{"c"}\NormalTok{, stock, strike, }\DecValTok{1}\OperatorTok{/}\DecValTok{4}\NormalTok{, interest, interest, sigmaPeak)}
+\KeywordTok{cat}\NormalTok{(}\StringTok{"estimated Call Price: "}\NormalTok{,bsCall}\OperatorTok{@}\NormalTok{price)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## estimated Call Price:  0.1347675
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{strike =}\StringTok{ }\DecValTok{19}
+\NormalTok{bsPut =}\StringTok{ }\KeywordTok{GBSOption}\NormalTok{(}\StringTok{"p"}\NormalTok{, stock, strike, }\DecValTok{1}\OperatorTok{/}\DecValTok{4}\NormalTok{, interest, interest, sigmaPeak)}
+\KeywordTok{cat}\NormalTok{(}\StringTok{"estimated Put Price: "}\NormalTok{,bsPut}\OperatorTok{@}\NormalTok{price)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## estimated Put Price:  0.03021871
+\end{verbatim}
+
+\subsubsection{UBS}\label{ubs}
+
+These are the UBS stock values of the last year (2017):
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{chartSeries}\NormalTok{(UBS)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{README_files/figure-latex/unnamed-chunk-8-1.pdf}
+
+\paragraph{Geometric Brownian Motion
+(GBM)}\label{geometric-brownian-motion-gbm-1}
+
+The geometric Brownian Motion is a continuous-time stochastic process in
+which the logarithm of the randomly varying quantity follows a Brownian
+motion or Wiener process. We can see the borders (blue) and the mean
+(yellow). The mean is the average of all the 1000 possible forcasts.
+
+\includegraphics{README_files/figure-latex/unnamed-chunk-9-1.pdf}
+
+\paragraph{Simulation Distribution}\label{simulation-distribution-1}
+
+We want to check that our values match with the lognormal distribution
+for the according companies.
+
+\includegraphics{README_files/figure-latex/unnamed-chunk-10-1.pdf}
+
+\paragraph{Black-Scholes Option
+Prices}\label{black-scholes-option-prices-1}
+
+I used the following values:
+
+\begin{itemize}
+\tightlist
+\item
+  Stock price: 16.22\$
+\item
+  Interest: 5\%
+\item
+  Time: 3 Months
+\item
+  Strike: 18\$ (call), 15\$ (put)
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{stock =}\StringTok{ }\KeywordTok{as.numeric}\NormalTok{(}\KeywordTok{Op}\NormalTok{(UBS)[}\DecValTok{1}\NormalTok{])}
+\NormalTok{interest =}\StringTok{ }\FloatTok{0.05}
+\NormalTok{strike =}\StringTok{ }\DecValTok{18}
+\NormalTok{bsCall =}\StringTok{ }\KeywordTok{GBSOption}\NormalTok{(}\StringTok{"c"}\NormalTok{, stock, strike, }\DecValTok{1}\OperatorTok{/}\DecValTok{4}\NormalTok{, interest, interest, sigmaPeak)}
+\KeywordTok{cat}\NormalTok{(}\StringTok{"estimated Call Price: "}\NormalTok{,bsCall}\OperatorTok{@}\NormalTok{price)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## estimated Call Price:  0.1333171
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{strike =}\StringTok{ }\DecValTok{15}
+\NormalTok{bsPut =}\StringTok{ }\KeywordTok{GBSOption}\NormalTok{(}\StringTok{"p"}\NormalTok{, stock, strike, }\DecValTok{1}\OperatorTok{/}\DecValTok{4}\NormalTok{, interest, interest, sigmaPeak)}
+\KeywordTok{cat}\NormalTok{(}\StringTok{"estimated Put Price: "}\NormalTok{,bsPut}\OperatorTok{@}\NormalTok{price)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## estimated Put Price:  0.1240447
+\end{verbatim}
+
+\subsubsection{Novartis}\label{novartis}
+
+These are the Novartis stock values of the last year (2017):
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{chartSeries}\NormalTok{(NVS)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{README_files/figure-latex/unnamed-chunk-12-1.pdf}
+
+\paragraph{Geometric Brownian Motion
+(GBM)}\label{geometric-brownian-motion-gbm-2}
+
+The geometric Brownian Motion is a continuous-time stochastic process in
+which the logarithm of the randomly varying quantity follows a Brownian
+motion or Wiener process. We can see the borders (blue) and the mean
+(yellow). The mean is the average of all the 1000 possible forcasts.
+
+\includegraphics{README_files/figure-latex/unnamed-chunk-13-1.pdf}
+
+\paragraph{Simulation Distribution}\label{simulation-distribution-2}
+
+We want to check that our values match with the lognormal distribution
+for the according companies.
+
+\includegraphics{README_files/figure-latex/unnamed-chunk-14-1.pdf}
+
+\paragraph{Black-Scholes Option
+Prices}\label{black-scholes-option-prices-2}
+
+I used the following values:
+
+\begin{itemize}
+\tightlist
+\item
+  Stock price: 72.89\$
+\item
+  Interest: 5\%
+\item
+  Time: 3 Months
+\item
+  Strike: 80\$ (call), 65\$ (put)
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{stock =}\StringTok{ }\KeywordTok{as.numeric}\NormalTok{(}\KeywordTok{Op}\NormalTok{(NVS)[}\DecValTok{1}\NormalTok{])}
+\NormalTok{interest =}\StringTok{ }\FloatTok{0.05}
+\NormalTok{strike =}\StringTok{ }\DecValTok{80}
+\NormalTok{bsCall =}\StringTok{ }\KeywordTok{GBSOption}\NormalTok{(}\StringTok{"c"}\NormalTok{, stock, strike, }\DecValTok{1}\OperatorTok{/}\DecValTok{4}\NormalTok{, interest, interest, sigmaPeak)}
+\KeywordTok{cat}\NormalTok{(}\StringTok{"estimated Call Price: "}\NormalTok{,bsCall}\OperatorTok{@}\NormalTok{price)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## estimated Call Price:  0.3282976
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{strike =}\StringTok{ }\DecValTok{65}
+\NormalTok{bsPut =}\StringTok{ }\KeywordTok{GBSOption}\NormalTok{(}\StringTok{"p"}\NormalTok{, stock, strike, }\DecValTok{1}\OperatorTok{/}\DecValTok{4}\NormalTok{, interest, interest, sigmaPeak)}
+\KeywordTok{cat}\NormalTok{(}\StringTok{"estimated Put Price: "}\NormalTok{,bsPut}\OperatorTok{@}\NormalTok{price)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## estimated Put Price:  0.06550017
+\end{verbatim}
+
+
+\end{document}
